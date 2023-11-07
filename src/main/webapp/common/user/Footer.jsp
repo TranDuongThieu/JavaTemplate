@@ -1,5 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
+	pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -7,6 +7,8 @@
 <title>Insert title here</title>
 </head>
 <body>
-	Headaer
+	<div>
+		<span>Footer</span> <span>21110658 - Tran Duong Thieu</span>
+	</div>
 </body>
 </html>

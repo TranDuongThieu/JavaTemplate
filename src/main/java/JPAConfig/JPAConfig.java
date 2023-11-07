@@ -6,7 +6,7 @@ import javax.persistence.Persistence;
 
 public class JPAConfig {
 	public static EntityManager getEntityManager() {
-		EntityManagerFactory factory = Persistence.createEntityManagerFactory("ProjectTemplate");
+		EntityManagerFactory factory = Persistence.createEntityManagerFactory("Book");
 		return factory.createEntityManager();
 	}
 }

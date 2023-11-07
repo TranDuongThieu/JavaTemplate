@@ -8,7 +8,7 @@ public class Product {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "ProductID")
-	private Long productID;
+	private String productID;
 
 	@Column(name = "Name", columnDefinition = "varchar(255)")
 	private String name;
@@ -29,11 +29,11 @@ public class Product {
 		this.category = category;
 	}
 
-	public Long getProductID() {
+	public String getProductID() {
 		return productID;
 	}
 
-	public void setProductID(Long productID) {
+	public void setProductID(String productID) {
 		this.productID = productID;
 	}
 
