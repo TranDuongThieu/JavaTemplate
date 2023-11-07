@@ -10,12 +10,13 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import hcmute.entity.User;
 import hcmute.services.AccountServiceImpl;
 import hcmute.services.IAccountServices;
 
-@WebServlet(urlPatterns = { "/authentication-login" })
+@WebServlet(urlPatterns = { "/authentication-login", "/waiting" })
 public class AuthenticationControllers extends HttpServlet {
 
 	IAccountServices accountService = new AccountServiceImpl();
@@ -25,8 +26,20 @@ public class AuthenticationControllers extends HttpServlet {
 
 		String url = req.getRequestURI().toString();
 		if (url.contains("login")) {
-			RequestDispatcher rd = req.getRequestDispatcher("/views/authentication/login.jsp");
-			rd.forward(req, resp);
+			getLogin(req, resp);
+
+		} else if (url.contains("waiting")) {
+			HttpSession session = req.getSession();
+
+			if (session != null && session.getAttribute("account") != null) {
+				User user = (User) session.getAttribute("account");
+				req.setAttribute("account", user);
+				if (user.getIsAdmin() == 1) {
+					resp.sendRedirect(req.getContextPath() + "/admin");
+				} else
+					resp.sendRedirect(req.getContextPath() + "/home");
+			} else
+				resp.sendRedirect(req.getContextPath() + "authentication/login");
 		}
 	}
 
@@ -35,37 +48,53 @@ public class AuthenticationControllers extends HttpServlet {
 		String url = req.getRequestURI().toString();
 
 		if (url.contains("login")) {
-			Login(req, resp);
+			postLogin(req, resp);
 		}
 	}
 
-	public void Login(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		try {
-			req.setCharacterEncoding("UTF-8");
-			resp.setCharacterEncoding("UTF-8");
-			User account = new User();
-			String email = req.getParameter("email");
-			String passWord = req.getParameter("passwd");
-			account.setEmail(email);
-			account.setPasswd(passWord);
+	private void postLogin(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		resp.setContentType("text/html");
+		resp.setCharacterEncoding("UTF-8");
+		req.setCharacterEncoding("UTF-8");
+		String email = req.getParameter("email");
+		String password = req.getParameter("passwd");
 
-			User user = accountService.Login(account);
-			if (user == null) {
-				req.setAttribute("message", "Tên đăng nhập hoặc mật khẩu không đúng");
-				RequestDispatcher rd = req.getRequestDispatcher("/views/authentication/login.jsp");
-				rd.forward(req, resp);
-			} else {
-				Cookie currentUser = new Cookie("currentUserID", Integer.toString(user.getId()));
-				currentUser.setMaxAge(15 * 24 * 60 * 60); // cookie ton tai trong 15 ngay
-				resp.addCookie(currentUser);
-				PrintWriter out = resp.getWriter();
-				Cookie[] cookies = req.getCookies();
-				resp.sendRedirect("/Ielts-listening2/home");
-			}
-
-		} catch (Exception e) {
-			// TODO: handle exception
+		String msg = "";
+		if (email.isEmpty() || password.isEmpty()) {
+			req.getRequestDispatcher("views/authentication/login.jsp").forward(req, resp);
+			return;
 		}
+		User user = accountService.Login(email, password);
+
+		if (user != null) {
+			HttpSession session = req.getSession(true);
+			session.setAttribute("account", user);
+			resp.sendRedirect(req.getContextPath() + "/waiting");
+			return;
+		} else
+			req.getRequestDispatcher("views/authentication/login.jsp").forward(req, resp);
+
+	}
+
+	public void getLogin(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		HttpSession session = req.getSession(false);
+		if (session != null && session.getAttribute("account") != null) {
+			resp.sendRedirect(req.getContextPath() + "/waiting");
+			return;
+		}
+
+		Cookie[] cookies = req.getCookies();
+		if (cookies != null) {
+			for (Cookie cookie : cookies) {
+				if (cookie.getName().equals("email")) {
+					session = req.getSession(true);
+					session.setAttribute("email", cookie.getValue());
+					resp.sendRedirect(req.getContextPath() + "/waiting");
+					return;
+				}
+			}
+		}
+		req.getRequestDispatcher("views/authentication/login.jsp").forward(req, resp);
 	}
 
 	private static final long serialVersionUID = 1L;

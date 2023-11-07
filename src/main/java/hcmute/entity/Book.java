@@ -36,5 +36,32 @@ public class Book {
 	@Column(name = "quantity")
 	private int quantity;
 
+	public int getBookId() {
+		return bookId;
+	}
+	public String getCoverImage() {
+		return coverImage;
+	}
+	public String getDescription() {
+		return description;
+	}
+	public int getIsbn() {
+		return isbn;
+	}
+	public double getPrice() {
+		return price;
+	}
+	public Date getPublishDate() {
+		return publishDate;
+	}
+	public String getPublisher() {
+		return publisher;
+	}
+	public int getQuantity() {
+		return quantity;
+	}
+	public String getTitle() {
+		return title;
+	}
 	// Getters and setters
 }

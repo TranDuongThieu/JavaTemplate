@@ -25,5 +25,20 @@ public class Rating {
 	@Column(name = "review_text", columnDefinition = "TEXT")
 	private String reviewText;
 
+	public Book getBook() {
+		return book;
+	}
+
+	public int getRating() {
+		return rating;
+	}
+
+	public String getReviewText() {
+		return reviewText;
+	}
+
+	public User getUser() {
+		return user;
+	}
 	// Getters and setters
 }

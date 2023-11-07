@@ -9,8 +9,8 @@ public class AccountServiceImpl implements IAccountServices {
 	IAccountDAO accountDAO = new AccountDAOImpl();
 
 	@Override
-	public User Login(User account) {
+	public User Login(String email, String passwd) {
 		// TODO Auto-generated method stub
-		return accountDAO.Login(account);
+		return accountDAO.Login(email, passwd);
 	}
 }

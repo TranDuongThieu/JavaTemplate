@@ -1,5 +1,7 @@
 package hcmute.DAO;
 
+import java.util.List;
+
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.TypedQuery;
@@ -10,26 +12,23 @@ import hcmute.entity.User;
 public class AccountDAOImpl implements IAccountDAO {
 
 	@Override
-	public User Login(User account) {
+	public User Login(String email, String passwd) {
 		EntityManager entityManager = JPAConfig.getEntityManager();
 		EntityTransaction transaction = entityManager.getTransaction();
-		System.out.println(account.getEmail() + " " + account.getPasswd());
-		try {
-			transaction.begin();
-			String email = account.getEmail();
-			User acc = entityManager.find(User.class, email);
 
-			if (acc != null && acc.getPasswd().equals(account.getPasswd())) {
-				String getUserQueryString = "SELECT u FROM User u WHERE u.account.email = :email";
-				TypedQuery<User> query = entityManager.createQuery(getUserQueryString, User.class);
-				query.setParameter("email", email);
-				User user = query.getSingleResult();
-				transaction.commit();
+		try {
+			String jpql = "SELECT u FROM User u WHERE u.email = :email";
+			TypedQuery<User> query = entityManager.createQuery(jpql, User.class);
+			query.setParameter("email", email.trim());
+			List<User> users = query.getResultList();
+			User user = users.get(0);
+			if (user.getPasswd().equals(passwd))
 				return user;
-			}
-			transaction.rollback();
-		} catch (Exception e) {
-			// Handle exceptions here (e.g., log or throw)
+			else return null;
+		}
+
+		catch (Exception e) {
+			// Handle other exceptions here (e.g., log or throw)
 			transaction.rollback();
 		} finally {
 			entityManager.close();
